@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastgreeks"
+version = "0.1.0"
+description = "Fused-CUDA double-barrier option pricing for 8x A100 clusters via the theta_3 image series"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "fastgreeks contributors" }]
+keywords = ["options", "barrier", "monte-carlo", "gpu", "cuda", "triton", "a100", "quant", "derivatives"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "torch>=2.2",
+    "triton>=2.2; platform_system=='Linux'",
+]
+modal = ["modal>=0.62"]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.8",
+]
+bench = [
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+]
+all = ["fastgreeks[gpu,modal,dev,bench]"]
+
+[project.scripts]
+fastgreeks-bench = "fastgreeks.bench.cli:main"
+
+[project.urls]
+Homepage   = "https://github.com/babybluechips/fastgreeks"
+Repository = "https://github.com/babybluechips/fastgreeks"
+Issues     = "https://github.com/babybluechips/fastgreeks/issues"
+
+[tool.setuptools.packages.find]
+where   = ["src"]
+include = ["fastgreeks*"]
+
+[tool.setuptools.package-data]
+fastgreeks = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]
+markers = [
+    "slow: marks tests as slow (deselect with -m \"not slow\")",
+    "gpu: requires CUDA + Triton; deselect with -m \"not gpu\"",
+    "a100: requires 8x A100 cluster; only runs on Modal/Lambda",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "PERF"]
+ignore = ["E741", "E731"]   # allow lambdas and short math names
